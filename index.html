@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArcheRage Collection Tracker</title>
+    <style>
+        :root {
+            --bg-dark: #121212;
+            --bg-card: #1e1e1e;
+            --bg-subcard: #252525;
+            --accent: #3498db;
+            --success: #2ecc71;
+            --text: #e0e0e0;
+            --gold: #f1c40f;
+        }
+
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: var(--bg-dark); 
+            color: var(--text); 
+            padding: 20px; 
+            max-width: 1400px; 
+            margin: auto; 
+        }
+
+        /* Compact Header */
+        .header-section { 
+            position: sticky; 
+            top: 0; 
+            background: var(--bg-dark); 
+            padding: 10px 0; 
+            border-bottom: 2px solid #333; 
+            z-index: 100; 
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 { margin: 0; font-size: 1.4rem; color: var(--accent); }
+
+        #searchBar { 
+            width: 200px; 
+            padding: 8px 12px; 
+            border-radius: 20px; 
+            border: 1px solid #444; 
+            background: var(--bg-card); 
+            color: white; 
+            font-size: 0.9rem; 
+            transition: width 0.3s;
+        }
+        #searchBar:focus { width: 300px; outline: none; border-color: var(--accent); }
+
+        /* Grandparent Sections */
+        .grandparent-section { 
+            margin-bottom: 15px; 
+            background: var(--bg-card); 
+            padding: 15px 25px; 
+            border-radius: 12px; 
+            border: 1px solid #333; 
+        }
+
+        .grandparent-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            cursor: pointer; /* Makes the whole header clickable */
+        }
+
+        .left-head { display: flex; align-items: center; gap: 15px; }
+        
+        .grandparent-title { 
+            color: white; 
+            margin: 0; 
+            text-decoration: underline; 
+            font-weight: bold; 
+            text-transform: uppercase;
+            font-size: 1.1rem;
+        }
+
+        .toggle-btn { 
+            background: none; 
+            border: 1px solid #444; 
+            color: var(--text); 
+            border-radius: 4px; 
+            cursor: pointer;
+            padding: 2px 8px;
+        }
+
+        .progress-container { 
+            width: 150px; 
+            height: 8px; 
+            background: #333; 
+            border-radius: 4px; 
+            overflow: hidden; 
+        }
+
+        .progress-fill { 
+            height: 100%; 
+            background: linear-gradient(90deg, var(--accent), var(--success)); 
+            width: 0%; 
+            transition: width 0.4s; 
+        }
+
+        /* Collapsible Grid */
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 15px; 
+            margin-top: 15px;
+            transition: max-height 0.3s ease-out;
+            overflow: hidden;
+        }
+
+        .collapsed .grid { display: none; }
+
+        .category-card { 
+            background: var(--bg-subcard); 
+            border: 1px solid #444; 
+            padding: 12px; 
+            border-radius: 8px; 
+        }
+
+        h3 { 
+            color: var(--gold); 
+            display: flex; 
+            justify-content: space-between; 
+            margin-top: 0; 
+            font-size: 0.95rem; 
+            border-bottom: 1px solid #444; 
+            padding-bottom: 5px;
+        }
+
+        .item { margin: 5px 0; display: flex; align-items: center; font-size: 0.85rem; color: #ccc; }
+        
+        input[type="checkbox"] { margin-right: 10px; cursor: pointer; }
+
+        .counter { font-size: 0.8rem; color: #888; font-family: monospace; }
+        .counter.complete { color: var(--success); font-weight: bold; text-shadow: 0 0 5px rgba(46, 204, 113, 0.4); }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div class="header-section">
+        <h1>ArcheRage Tracker</h1>
+        <input type="text" id="searchBar" placeholder="Search..." onkeyup="search()">
+    </div>
+
+    <div id="main-content"></div>
+
+    <script src="data.js"></script>
+
+    <script>
+        const cleanId = (str) => "id-" + str.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+
+        function toggleSection(btn) {
+            const section = btn.closest('.grandparent-section');
+            section.classList.toggle('collapsed');
+            btn.innerText = section.classList.contains('collapsed') ? "+" : "−";
+        }
+
+        function render() {
+            const container = document.getElementById('main-content');
+            let html = '';
+
+            collectionData.forEach(gp => {
+                const gpId = cleanId(gp.grandparent);
+                html += `
+                    <div class="grandparent-section" id="sec-${gpId}">
+                        <div class="grandparent-header" onclick="toggleSection(this.querySelector('.toggle-btn'))">
+                            <div class="left-head">
+                                <button class="toggle-btn">−</button>
+                                <h2 class="grandparent-title">${gp.grandparent}</h2>
+                            </div>
+                            <div class="progress-container">
+                                <div class="progress-fill" id="bar-${gpId}"></div>
+                            </div>
+                        </div>
+                        <div class="grid">`;
+                
+                gp.parents.forEach(p => {
+                    const pId = cleanId(gp.grandparent + p.name);
+                    const headerStyle = p.name === "" ? "display:none" : "";
+                    
+                    html += `
+                        <div class="category-card">
+                            <h3 style="${headerStyle}">${p.name} <span class="counter" id="count-${pId}"></span></h3>`;
+                    
+                    p.items.forEach(item => {
+                        const itemId = cleanId(item);
+                        const checked = localStorage.getItem(itemId) === "true" ? "checked" : "";
+                        html += `
+                            <div class="item" data-name="${item.toLowerCase()}">
+                                <input type="checkbox" id="${itemId}" ${checked} onchange="save('${itemId}')">
+                                <label for="${itemId}">${item}</label>
+                            </div>`;
+                    });
+                    html += `</div>`;
+                });
+                html += `</div></div>`;
+            });
+            container.innerHTML = html;
+            updateCounters();
+        }
+
+        function updateCounters() {
+            collectionData.forEach(gp => {
+                let gpTotal = 0, gpChecked = 0;
+                const gpId = cleanId(gp.grandparent);
+
+                gp.parents.forEach(p => {
+                    const pId = cleanId(gp.grandparent + p.name);
+                    let pTotal = p.items.length, pChecked = 0;
+
+                    p.items.forEach(item => {
+                        gpTotal++;
+                        if(localStorage.getItem(cleanId(item)) === "true") {
+                            pChecked++;
+                            gpChecked++;
+                        }
+                    });
+
+                    const pCounter = document.getElementById(`count-${pId}`);
+                    if(pCounter) {
+                        pCounter.innerText = `${pChecked} / ${pTotal}`;
+                        // Add "complete" class if all items are checked
+                        if (pChecked === pTotal && pTotal > 0) {
+                            pCounter.classList.add('complete');
+                        } else {
+                            pCounter.classList.remove('complete');
+                        }
+                    }
+                });
+
+                const bar = document.getElementById(`bar-${gpId}`);
+                if(bar) {
+                    const percentage = gpTotal > 0 ? (gpChecked / gpTotal) * 100 : 0;
+                    bar.style.width = percentage + "%";
+                }
+            });
+        }
+
+        function save(id) {
+            localStorage.setItem(id, document.getElementById(id).checked);
+            updateCounters();
+        }
+
+        function search() {
+            const query = document.getElementById('searchBar').value.toLowerCase();
+            document.querySelectorAll('.item').forEach(item => {
+                item.classList.toggle('hidden', !item.getAttribute('data-name').includes(query));
+            });
+            document.querySelectorAll('.category-card').forEach(card => {
+                const visible = card.querySelectorAll('.item:not(.hidden)').length;
+                card.classList.toggle('hidden', query !== "" && visible === 0);
+            });
+        }
+
+        window.onload = render;
+    </script>
+</body>
+</html>
