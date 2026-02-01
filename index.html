@@ -3,262 +3,277 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ArcheRage Collection Tracker</title>
-    <style>
-        :root {
-            --bg-dark: #121212;
-            --bg-card: #1e1e1e;
-            --bg-subcard: #252525;
-            --accent: #3498db;
-            --success: #2ecc71;
-            --text: #e0e0e0;
-            --gold: #f1c40f;
-        }
-
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            background: var(--bg-dark); 
-            color: var(--text); 
-            padding: 20px; 
-            max-width: 1400px; 
-            margin: auto; 
-        }
-
-        /* Compact Header */
-        .header-section { 
-            position: sticky; 
-            top: 0; 
-            background: var(--bg-dark); 
-            padding: 10px 0; 
-            border-bottom: 2px solid #333; 
-            z-index: 100; 
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        h1 { margin: 0; font-size: 1.4rem; color: var(--accent); }
-
-        #searchBar { 
-            width: 200px; 
-            padding: 8px 12px; 
-            border-radius: 20px; 
-            border: 1px solid #444; 
-            background: var(--bg-card); 
-            color: white; 
-            font-size: 0.9rem; 
-            transition: width 0.3s;
-        }
-        #searchBar:focus { width: 300px; outline: none; border-color: var(--accent); }
-
-        /* Grandparent Sections */
-        .grandparent-section { 
-            margin-bottom: 15px; 
-            background: var(--bg-card); 
-            padding: 15px 25px; 
-            border-radius: 12px; 
-            border: 1px solid #333; 
-        }
-
-        .grandparent-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            cursor: pointer; /* Makes the whole header clickable */
-        }
-
-        .left-head { display: flex; align-items: center; gap: 15px; }
-        
-        .grandparent-title { 
-            color: white; 
-            margin: 0; 
-            text-decoration: underline; 
-            font-weight: bold; 
-            text-transform: uppercase;
-            font-size: 1.1rem;
-        }
-
-        .toggle-btn { 
-            background: none; 
-            border: 1px solid #444; 
-            color: var(--text); 
-            border-radius: 4px; 
-            cursor: pointer;
-            padding: 2px 8px;
-        }
-
-        .progress-container { 
-            width: 150px; 
-            height: 8px; 
-            background: #333; 
-            border-radius: 4px; 
-            overflow: hidden; 
-        }
-
-        .progress-fill { 
-            height: 100%; 
-            background: linear-gradient(90deg, var(--accent), var(--success)); 
-            width: 0%; 
-            transition: width 0.4s; 
-        }
-
-        /* Collapsible Grid */
-        .grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
-            gap: 15px; 
-            margin-top: 15px;
-            transition: max-height 0.3s ease-out;
-            overflow: hidden;
-        }
-
-        .collapsed .grid { display: none; }
-
-        .category-card { 
-            background: var(--bg-subcard); 
-            border: 1px solid #444; 
-            padding: 12px; 
-            border-radius: 8px; 
-        }
-
-        h3 { 
-            color: var(--gold); 
-            display: flex; 
-            justify-content: space-between; 
-            margin-top: 0; 
-            font-size: 0.95rem; 
-            border-bottom: 1px solid #444; 
-            padding-bottom: 5px;
-        }
-
-        .item { margin: 5px 0; display: flex; align-items: center; font-size: 0.85rem; color: #ccc; }
-        
-        input[type="checkbox"] { margin-right: 10px; cursor: pointer; }
-
-        .counter { font-size: 0.8rem; color: #888; font-family: monospace; }
-        .counter.complete { color: var(--success); font-weight: bold; text-shadow: 0 0 5px rgba(46, 204, 113, 0.4); }
-
-        .hidden { display: none !important; }
-    </style>
+    <title>ArcheRage Tracker</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="header-section">
-        <h1>ArcheRage Tracker</h1>
-        <input type="text" id="searchBar" placeholder="Search..." onkeyup="search()">
+    <div class="header-container">
+        <div class="top-row">
+            <div class="title-side">
+                <h1>ArcheRage Collections</h1>
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('completionist', this)">Completionist</button>
+                    <button class="tab-btn" onclick="switchTab('fashion', this)">Fashion Icon</button>
+                    <button class="tab-btn" onclick="switchTab('bonus', this)">Others</button>
+                </div>
+            </div>
+
+            <div class="search-wrapper">
+                <input type="text" id="searchBar" placeholder="Search items..." onkeyup="search()">
+                <button id="clearBtn" class="clear-search" onclick="clearSearch()">✕</button>
+            </div>
+
+            <div class="nav-tools">
+                <div id="global-container">
+                    <div style="display:flex; justify-content:space-between; align-items: center;">
+                        <span style="font-size: 0.75rem; color: #888; font-weight: bold; text-transform: uppercase;">Total Progress</span>
+                        <span id="globalText" style="font-size: 0.85rem; color: var(--gold); font-weight:bold;">0%</span>
+                    </div>
+                    <div>
+                        <div id="globalBar" style="height:100%; width:0%; background: var(--success); transition: width 0.4s;"></div>
+                    </div>
+                </div>
+                <button id="filterBtn" class="btn" onclick="toggleUncollectedFilter()">Show Uncollected Only</button>
+                <div class="group-sep"></div>
+                <button class="btn" onclick="exportData()">Export</button>
+                <button class="btn" onclick="document.getElementById('fileInput').click()">Import</button>
+                <input type="file" id="fileInput" style="display:none" onchange="importData(event)">
+            </div>
+        </div>
     </div>
 
     <div id="main-content"></div>
 
+    <button id="backToTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">↑</button>
+
+    <footer>
+        Made with ❤️ by <strong>Touched</strong> (ArcheRage NA) for all the fellow collectors. Last updated: February 2026.
+    </footer>
+
     <script src="data.js"></script>
-
     <script>
+        let currentTab = 'completionist';
+        let showUncollectedOnly = false;
         const cleanId = (str) => "id-" + str.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+        const placeholder = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
-        function toggleSection(btn) {
-            const section = btn.closest('.grandparent-section');
-            section.classList.toggle('collapsed');
-            btn.innerText = section.classList.contains('collapsed') ? "+" : "−";
+        function switchTab(tab, btn) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('global-container').style.visibility = (tab === 'completionist') ? 'visible' : 'hidden';
+            clearSearch();
+        }
+
+        function toggleUncollectedFilter() {
+            showUncollectedOnly = !showUncollectedOnly;
+            document.getElementById('filterBtn').classList.toggle('active-filter', showUncollectedOnly);
+            render();
+        }
+
+        function search() {
+            const query = document.getElementById('searchBar').value;
+            document.getElementById('clearBtn').style.display = query.length > 0 ? 'flex' : 'none';
+            render();
+        }
+
+        function clearSearch() {
+            const sb = document.getElementById('searchBar');
+            sb.value = '';
+            document.getElementById('clearBtn').style.display = 'none';
+            render();
+        }
+
+        function resetSection(gpIndex) {
+            if(!confirm("Reset all checkboxes in this section?")) return;
+            const gp = collectionData[gpIndex];
+            gp.parents.forEach(p => p.items.forEach(item => localStorage.removeItem(cleanId(item.name))));
+            render();
         }
 
         function render() {
             const container = document.getElementById('main-content');
+            const query = document.getElementById('searchBar').value.toLowerCase();
             let html = '';
-
-            collectionData.forEach(gp => {
+            
+            const filteredData = collectionData.map((gp, index) => ({...gp, originalIndex: index}))
+                                              .filter(gp => gp.tab === currentTab);
+            
+            filteredData.forEach(gp => {
                 const gpId = cleanId(gp.grandparent);
-                html += `
-                    <div class="grandparent-section" id="sec-${gpId}">
-                        <div class="grandparent-header" onclick="toggleSection(this.querySelector('.toggle-btn'))">
-                            <div class="left-head">
-                                <button class="toggle-btn">−</button>
-                                <h2 class="grandparent-title">${gp.grandparent}</h2>
-                            </div>
-                            <div class="progress-container">
-                                <div class="progress-fill" id="bar-${gpId}"></div>
-                            </div>
-                        </div>
-                        <div class="grid">`;
-                
+                let gpHasVisibleItems = false;
+                let grandparentHtml = '';
+
+                const gpName = gp.grandparent.toLowerCase();
+                const isLongSection = gpName.includes("archivist") || gpName.includes("archerage");
+
                 gp.parents.forEach(p => {
                     const pId = cleanId(gp.grandparent + p.name);
-                    const headerStyle = p.name === "" ? "display:none" : "";
-                    
-                    html += `
-                        <div class="category-card">
-                            <h3 style="${headerStyle}">${p.name} <span class="counter" id="count-${pId}"></span></h3>`;
-                    
+                    let parentHtml = '';
+                    let visibleCount = 0;
+
                     p.items.forEach(item => {
-                        const itemId = cleanId(item);
-                        const checked = localStorage.getItem(itemId) === "true" ? "checked" : "";
-                        html += `
-                            <div class="item" data-name="${item.toLowerCase()}">
-                                <input type="checkbox" id="${itemId}" ${checked} onchange="save('${itemId}')">
-                                <label for="${itemId}">${item}</label>
+                        const itemId = cleanId(item.name);
+                        const isChecked = localStorage.getItem(itemId) === "true";
+                        const matchesSearch = item.name.toLowerCase().includes(query);
+                        const shouldShow = matchesSearch && (!showUncollectedOnly || !isChecked);
+
+                        if (shouldShow) {
+                            visibleCount++;
+                            parentHtml += `
+                            <div class="item">
+                                <input type="checkbox" id="${itemId}" ${isChecked ? 'checked' : ''} onchange="save('${itemId}')">
+                                <div class="item-content">
+                                    <img src="${item.icon}" class="framed-icon item-icon" onerror="this.src='${placeholder}'">
+                                    <span>${item.name}</span>
+                                </div>
+                                <label class="click-target" for="${itemId}"></label>
                             </div>`;
+                        }
                     });
-                    html += `</div>`;
+
+                    if (visibleCount > 0) {
+                        gpHasVisibleItems = true;
+                        let spanClass = '';
+                        let listClass = '';
+
+                        if (isLongSection) {
+                            listClass = 'item-list-compact';
+                            if (visibleCount >= 12) spanClass = 'span-4';
+                            else if (visibleCount >= 11) spanClass = 'span-3';
+                            else if (visibleCount >= 7) spanClass = 'span-2';
+                        }
+
+                        const hideHeader = (p.name === "None" || p.name === "") ? 'style="display:none"' : '';
+                        
+                        grandparentHtml += `
+                        <div class="category-card ${spanClass}" id="card-${pId}">
+                            <h3 ${hideHeader}>
+                                <div class="p-title-box">
+                                    <img src="${p.icon}" class="framed-icon p-icon-large" onerror="this.src='${placeholder}'">
+                                    <span>${p.name}</span>
+                                </div>
+                                <span id="count-${pId}" style="font-size:0.9rem;"></span>
+                            </h3>
+                            <div class="${listClass}"> ${parentHtml} </div>
+                        </div>`;
+                    }
                 });
-                html += `</div></div>`;
+
+                if (gpHasVisibleItems) {
+                    const rewardImg = (gp.reward && gp.reward !== "") 
+                        ? `<img src="${gp.reward}" class="framed-icon bold-frame" onerror="this.src='${placeholder}'">` 
+                        : "";
+
+                    html += `
+                    <div class="grandparent-section" id="sec-${gpId}">
+                        <div class="grandparent-header" onclick="document.getElementById('sec-${gpId}').classList.toggle('collapsed')">
+                            <div style="display:flex; align-items:center; gap:20px;">
+                                <img src="${gp.icon}" class="framed-icon bold-frame" onerror="this.src='${placeholder}'">
+                                ${rewardImg}
+                                <div>
+                                    <h2 style="margin:0; font-size:1.5rem;">${gp.grandparent}</h2>
+                                    <button class="reset-btn" onclick="event.stopPropagation(); resetSection(${gp.originalIndex})">Reset Section</button>
+                                </div>
+                            </div>
+                            <div style="text-align:right">
+                                <span id="gp-text-${gpId}" style="font-weight:bold; color:var(--accent); font-size:0.9rem;"></span>
+                                <div class="sec-progress-container"><div class="sec-bar" id="gp-bar-${gpId}"></div></div>
+                            </div>
+                        </div>
+                        <div class="grid">${grandparentHtml}</div>
+                    </div>`;
+                }
             });
-            container.innerHTML = html;
+
+            container.innerHTML = html || `<div style="text-align:center; padding:50px; color:#666;">No items found matching "${query}"</div>`;
             updateCounters();
         }
 
         function updateCounters() {
-            collectionData.forEach(gp => {
-                let gpTotal = 0, gpChecked = 0;
-                const gpId = cleanId(gp.grandparent);
+			let globalChecked = 0, globalTotal = 0;
+			collectionData.forEach(gp => {
+				const gpId = cleanId(gp.grandparent);
+				let gpChecked = 0, gpTotal = 0;
+        
+				gp.parents.forEach(p => {
+					const pId = cleanId(gp.grandparent + p.name);
+					let pChecked = 0;
+					p.items.forEach(item => { if(localStorage.getItem(cleanId(item.name)) === "true") pChecked++; });
+            
+					const isDone = (pChecked === p.items.length && p.items.length > 0);
+					const hasBonus = (p.name !== "None" && p.name !== "");
+					const bonusChecked = (isDone && hasBonus) ? pChecked + 1 : pChecked;
+					const bonusTotal = hasBonus ? p.items.length + 1 : p.items.length;
+            
+					if(!gp.excludeFromGlobal) { globalTotal += bonusTotal; globalChecked += bonusChecked; }
+					gpChecked += bonusChecked; gpTotal += bonusTotal;
+            
+					const countEl = document.getElementById(`count-${pId}`);
+					const card = document.getElementById(`card-${pId}`);
+					if(countEl && card) {
+						card.classList.toggle('completed', isDone);
+						countEl.innerText = `${pChecked}/${p.items.length}`;
+						countEl.style.color = isDone ? "var(--success)" : "#888";
+					}
+				});
 
-                gp.parents.forEach(p => {
-                    const pId = cleanId(gp.grandparent + p.name);
-                    let pTotal = p.items.length, pChecked = 0;
+				const gpBar = document.getElementById(`gp-bar-${gpId}`);
+				const gpSection = document.getElementById(`sec-${gpId}`); // Target the whole section
+        
+				if(gpBar) {
+					const gpPercent = gpTotal > 0 ? (gpChecked/gpTotal)*100 : 0;
+					gpBar.style.width = gpPercent + "%";
+					document.getElementById(`gp-text-${gpId}`).innerText = `${gpChecked} / ${gpTotal}`;
+            
+					// NEW: Toggle the 'all-complete' class if 100% finished
+					if(gpSection) {
+						if(gpPercent === 100) {
+							gpSection.classList.add('all-complete');
+						} else {
+							gpSection.classList.remove('all-complete');
+						}
+					}
+				}
+			});
 
-                    p.items.forEach(item => {
-                        gpTotal++;
-                        if(localStorage.getItem(cleanId(item)) === "true") {
-                            pChecked++;
-                            gpChecked++;
-                        }
-                    });
+			const percent = globalTotal > 0 ? Math.round((globalChecked/globalTotal)*100) : 0;
+			const gb = document.getElementById('globalBar');
+			if(gb) gb.style.width = percent + "%";
+			const gt = document.getElementById('globalText');
+			if(gt) gt.innerText = `${globalChecked} / ${globalTotal} (${percent}%)`;
+		}
 
-                    const pCounter = document.getElementById(`count-${pId}`);
-                    if(pCounter) {
-                        pCounter.innerText = `${pChecked} / ${pTotal}`;
-                        // Add "complete" class if all items are checked
-                        if (pChecked === pTotal && pTotal > 0) {
-                            pCounter.classList.add('complete');
-                        } else {
-                            pCounter.classList.remove('complete');
-                        }
-                    }
-                });
-
-                const bar = document.getElementById(`bar-${gpId}`);
-                if(bar) {
-                    const percentage = gpTotal > 0 ? (gpChecked / gpTotal) * 100 : 0;
-                    bar.style.width = percentage + "%";
-                }
-            });
+        function save(id) { 
+            localStorage.setItem(id, document.getElementById(id).checked); 
+            updateCounters(); 
+            if(showUncollectedOnly) render(); 
         }
 
-        function save(id) {
-            localStorage.setItem(id, document.getElementById(id).checked);
-            updateCounters();
+        function exportData() {
+            const data = {};
+            for (let i = 0; i < localStorage.length; i++){
+                const key = localStorage.key(i);
+                if(key.startsWith('id-')) data[key] = localStorage.getItem(key);
+            }
+            const blob = new Blob([JSON.stringify(data)], {type: 'application/json'});
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `ArcheRage_Backup.json`; a.click();
         }
 
-        function search() {
-            const query = document.getElementById('searchBar').value.toLowerCase();
-            document.querySelectorAll('.item').forEach(item => {
-                item.classList.toggle('hidden', !item.getAttribute('data-name').includes(query));
-            });
-            document.querySelectorAll('.category-card').forEach(card => {
-                const visible = card.querySelectorAll('.item:not(.hidden)').length;
-                card.classList.toggle('hidden', query !== "" && visible === 0);
-            });
+        function importData(event) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const data = JSON.parse(e.target.result);
+                Object.keys(data).forEach(key => localStorage.setItem(key, data[key]));
+                render();
+            };
+            reader.readAsText(event.target.files[0]);
         }
 
+        window.onscroll = function() { 
+            document.getElementById("backToTop").style.display = (window.pageYOffset > 300) ? "block" : "none"; 
+        };
         window.onload = render;
     </script>
 </body>
