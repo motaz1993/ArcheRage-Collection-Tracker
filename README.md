@@ -1,4 +1,4 @@
-#### https://motaz1993.github.io/ArcheRage-Collection-Tracker/ ####
+####[ArcheRage Collection Tracker](https://motaz1993.github.io/ArcheRage-Collection-Tracker/)####
 
 # 🏆 ArcheRage Collections Tracker
 
